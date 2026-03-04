@@ -11,9 +11,10 @@
 
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useRef, useEffect } from 'react';
-import { X, Mic, StopCircle, Save, Sparkles, Lock, Play, Pause } from 'lucide-react';
+import { X, Mic, StopCircle, Save, Sparkles, Lock, Play, Pause, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner@2.0.3';
-// Uses browser Web Speech API or AWS Transcribe if configured
+import { transcribeAudioFile } from '../../services/AWSTranscribeService';
+// Uses AWS Transcribe for professional speech-to-text
 
 interface VoiceProductStoryProps {
   isOpen: boolean;
@@ -35,6 +36,8 @@ export interface ProductStory {
 export function VoiceProductStory({ isOpen, onClose, onSaveToVault, onGenerateMarketing }: VoiceProductStoryProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStep, setProcessingStep] = useState(''); // "uploading", "transcribing", "complete"
+  const [transcriptionError, setTranscriptionError] = useState('');
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [transcription, setTranscription] = useState('');
@@ -124,53 +127,50 @@ export function VoiceProductStory({ isOpen, onClose, onSaveToVault, onGenerateMa
   }
 
   /**
-   * Transcribe audio using Speech-to-Text
+   * Transcribe audio using AWS Transcribe
    */
   async function transcribeAudio(blob: Blob) {
     setIsProcessing(true);
+    setTranscriptionError('');
+    setProcessingStep('uploading');
 
     try {
-      // Convert blob to base64
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
+      console.log('🎤 Starting AWS Transcribe job...');
+      toast.info('Transcribing your story with AWS Transcribe...');
       
-      reader.onloadend = async () => {
-        const base64Audio = reader.result as string;
-        
-        // Uses browser Web Speech API or AWS Transcribe if configured
-        // For now, using mock transcription for demo
-        try {
-          // In production, this would call AWS Transcribe
-          // const result = await transcribeWithAWS(base64Audio, 'ta-IN');
-          
-          // Demo mode: generate realistic transcription
-          console.log('📝 Transcribing audio (demo mode)');
-          const mockTranscription = generateMockTranscription();
-          setTranscription(mockTranscription);
-          toast.success('Story transcribed! (Demo mode)');
-        } catch (error) {
-          console.error('Transcription error:', error);
-          const mockTranscription = generateMockTranscription();
-          setTranscription(mockTranscription);
-          toast.success('Story transcribed! (Demo mode)');
-        }
-        
-        setIsProcessing(false);
-      };
-    } catch (error) {
-      console.error('Transcription error:', error);
-      toast.error('Failed to transcribe. Please try again.');
+      // Call real AWS Transcribe service
+      setProcessingStep('transcribing');
+      const text = await transcribeAudioFile(blob, 'ta'); // Tamil by default
+      
+      if (text && text.trim()) {
+        setTranscription(text);
+        setProcessingStep('complete');
+        toast.success('🎯 Story transcribed successfully!');
+        console.log('✅ Transcription result:', text.substring(0, 100) + '...');
+      } else {
+        throw new Error('No transcription returned');
+      }
+    } catch (error: any) {
+      console.error('❌ AWS Transcribe error:', error);
+      setTranscriptionError(error.message || 'Transcription failed');
+      toast.error(`Transcription failed: ${error.message}`);
+      
+      // Fallback to mock for demo
+      console.log('📝 Falling back to mock transcription...');
+      const mockTranscription = generateMockTranscription();
+      setTranscription(mockTranscription);
+      setProcessingStep('fallback');
+      toast.info('Using demo transcription (AWS Transcribe unavailable)');
+    } finally {
       setIsProcessing(false);
     }
   }
 
   /**
-   * Mock transcription for demo
+   * Mock transcription fallback (when AWS Transcribe unavailable)
    */
   function generateMockTranscription(): string {
-    return `இந்த நடராஜர் சிலை எங்கள் குடும்பத்தின் 9 தலைமுறை பாரம்பரியம். இழந்த மெழுகு வார்ப்பு முறையில் செய்யப்பட்டது. சிறப்பு பஞ்சலோக உலோகக் கலவையுடன் கூடியது. ஒவ்வொரு விவரமும் கையால் செதுக்கப்பட்டது. இது 2 மாதங்கள் உழைப்பின் பலன்.
-
-This Nataraja statue is our family's 9-generation legacy. Made using lost-wax casting method. With special panchaloha metal alloy. Every detail hand-carved. This is the result of 2 months of labor.`;
+    return `[Demo Mode - Real AWS Transcribe Unavailable]\n\nஇந்த நடராஜர் சிலை எங்கள் குடும்பத்தின் 9 தலைமுறை பாரம்பரியம். இழந்த மெழுகு வார்ப்பு முறையில் செய்யப்பட்டது. சிறப்பு பஞ்சலோக உலோகக் கலவையுடன் கூடியது. ஒவ்வொரு விவரமும் கையால் செதுக்கப்பட்டது. இது 2 மாதங்கள் உழைப்பின் பலன்.\n\nThis Nataraja statue is our family's 9-generation legacy. Made using lost-wax casting method. With special panchaloha metal alloy. Every detail hand-carved. This is the result of 2 months of labor.\n\n⚠️ Note: Enable AWS Transcribe in your AWS console for live transcription.`;
   }
 
   /**
@@ -406,22 +406,65 @@ This Nataraja statue is our family's 9-generation legacy. Made using lost-wax ca
 
                     {/* Transcription */}
                     {isProcessing ? (
-                      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6 text-center">
-                        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-3" />
-                        <p className="text-blue-900 dark:text-blue-300 font-medium">
-                          Transcribing your story...
-                        </p>
-                      </div>
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-6"
+                      >
+                        <div className="text-center">
+                          <motion.div
+                            className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-3"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                          />
+                          <p className="text-blue-900 dark:text-blue-300 font-bold mb-1">
+                            AWS Transcribe Processing...
+                          </p>
+                          <p className="text-sm text-blue-700 dark:text-blue-400">
+                            {processingStep === 'uploading' && '📤 Uploading audio to S3...'}
+                            {processingStep === 'transcribing' && '🎤 Transcribing speech to text...'}
+                            {processingStep === 'complete' && '✅ Transcription complete!'}
+                            {!processingStep && '⏳ Initializing AWS services...'}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ) : transcriptionError ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-700 rounded-2xl p-4"
+                      >
+                        <div className="flex items-start gap-3">
+                          <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <h4 className="font-bold text-yellow-900 dark:text-yellow-300 mb-1">
+                              Transcription Note
+                            </h4>
+                            <p className="text-sm text-yellow-800 dark:text-yellow-400 mb-2">
+                              {transcriptionError}
+                            </p>
+                            <p className="text-xs text-yellow-700 dark:text-yellow-500">
+                              Using demo transcription. To enable AWS Transcribe:
+                              <br/>• Ensure AWS Transcribe is enabled in your region
+                              <br/>• Check IAM permissions for Transcribe + S3
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
                     ) : transcription ? (
-                      <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-700 rounded-2xl p-4">
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-700 rounded-2xl p-4"
+                      >
                         <h4 className="font-bold text-green-900 dark:text-green-300 mb-2 flex items-center gap-2">
                           <Sparkles className="w-5 h-5" />
-                          Transcription
+                          {processingStep === 'fallback' ? '📝 Demo Transcription' : '✅ AWS Transcription'}
                         </h4>
-                        <p className="text-gray-800 dark:text-gray-300 whitespace-pre-wrap">
+                        <p className="text-gray-800 dark:text-gray-300 whitespace-pre-wrap text-sm leading-relaxed">
                           {transcription}
                         </p>
-                      </div>
+                      </motion.div>
                     ) : null}
                   </div>
                 )}

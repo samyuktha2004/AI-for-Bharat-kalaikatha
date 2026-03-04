@@ -1,8 +1,20 @@
 import { motion } from 'motion/react';
-import { ArrowLeft, IndianRupee, MessageCircle, Clock, Activity, TrendingUp, Package } from 'lucide-react';
+import { ArrowLeft, IndianRupee, MessageCircle, Clock, Activity, TrendingUp, Package, Check, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks';
 import natarajaProductImage from 'figma:asset/852ca5c1ac40dbd85cdb673b76a77225c11846b5.png';
+import {
+  saveBargainBotConfig,
+  loadBargainBotConfig,
+  getNegotiationHistory,
+  getNegotiationStats,
+  processNegotiation,
+  generateMockNegotiationRound,
+  getSoftFloor,
+  getHardFloor,
+  type BargainBotConfig,
+  type NegotiationRound,
+} from '@/services/BargainBotService';
 
 interface BargainBotProps {
   onBack: () => void;
@@ -30,12 +42,17 @@ export function BargainBot({ onBack }: BargainBotProps) {
   const [floorPrice, setFloorPrice] = useState('14800');
   const [minPrice, setMinPrice] = useState('14800');
   const [maxPrice, setMaxPrice] = useState('18500');
-  const [autoAccept, setAutoAccept] = useState(false);
-  const [negotiationStyle, setNegotiationStyle] = useState<'firm' | 'friendly' | 'flexible'>('firm');
-  const [urgencyLevel, setUrgencyLevel] = useState(3);
+  const [autoAccept, setAutoAccept] = useState(true); // Always on by default
+  const [negotiationStyle, setNegotiationStyle] = useState<'firm' | 'friendly' | 'flexible'>('friendly');
+  const [urgencyLevel, setUrgencyLevel] = useState(5);
   const [showDetailedText, setShowDetailedText] = useState(
     localStorage.getItem('artisan_detailed_text') === 'true'
   );
+
+  const [negotiationHistory, setNegotiationHistory] = useState<NegotiationRound[]>([]);
+  const [negotiationStats, setNegotiationStats] = useState<any>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Update min/max prices when a product is selected
   useEffect(() => {
@@ -47,18 +64,84 @@ export function BargainBot({ onBack }: BargainBotProps) {
         setMinPrice(min);
         setMaxPrice(max);
         setFloorPrice(min);
+
+        // Load configuration if exists
+        const config = loadBargainBotConfig(selectedProductId.toString());
+        if (config) {
+          setFloorPrice(config.floorPrice.toString());
+          setNegotiationStyle(config.negotiationStyle);
+          setUrgencyLevel(config.urgencyLevel);
+          setAutoAccept(config.autoNegotiate);
+
+          // Load negotiation history
+          const history = getNegotiationHistory(selectedProductId.toString());
+          const stats = getNegotiationStats(selectedProductId.toString());
+          setNegotiationHistory(history);
+          setNegotiationStats(stats);
+        }
       }
     }
   }, [selectedProductId]);
 
-  const activities = [
-    { time: '5 min ago', message: 'Dubai hotel offered ₹11,100/piece (40% off). AI counter-offered ₹14,800/piece (20% off) with value justification.', status: 'active', icon: '◐' },
-    { time: '2 hours ago', message: 'Temple Trust accepted ₹48,000 for bell set. Order confirmed.', status: 'completed', icon: '●' },
-    { time: '1 day ago', message: 'Rejected ₹10,000 offer for Nataraja. Below minimum (₹14,800). Not negotiable.', status: 'rejected', icon: '✗' },
-    { time: '3 days ago', message: 'Started negotiation for 12" Bronze Nataraja. Initial offer: ₹12,500', status: 'success', icon: '✓' },
-  ];
+  const handleSaveConfiguration = async () => {
+    if (!selectedProductId) {
+      alert('Please select a product first');
+      return;
+    }
 
-  const selectedProduct = selectedProductId ? MOCK_SHOP_PRODUCTS.find(p => p.id === selectedProductId) : null;
+    setIsSaving(true);
+    try {
+      const config: BargainBotConfig = {
+        productId: selectedProductId.toString(),
+        productName: MOCK_SHOP_PRODUCTS.find(p => p.id === selectedProductId)?.name || '',
+        floorPrice: parseInt(floorPrice),
+        suggestedPrice: parseInt(maxPrice),
+        negotiationStyle,
+        autoNegotiate: autoAccept,
+        urgencyLevel,
+        isActive: autoAccept,
+      };
+
+      saveBargainBotConfig(config);
+      setSuccessMessage('✅ Configuration saved! Bargain Bot is active and monitoring your orders.');
+
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+    } catch (error) {
+      console.error('Error saving config:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleTestNegotiation = async () => {
+    if (!selectedProductId) {
+      alert('Please select a product first');
+      return;
+    }
+
+    const config: BargainBotConfig = {
+      productId: selectedProductId.toString(),
+      productName: MOCK_SHOP_PRODUCTS.find(p => p.id === selectedProductId)?.name || '',
+      floorPrice: parseInt(floorPrice),
+      suggestedPrice: parseInt(maxPrice),
+      negotiationStyle,
+      autoNegotiate: autoAccept,
+      urgencyLevel,
+      isActive: autoAccept,
+    };
+
+    // Generate mock negotiation
+    const mockRound = generateMockNegotiationRound(config);
+    setNegotiationHistory([mockRound, ...negotiationHistory]);
+    setNegotiationStats(getNegotiationStats(selectedProductId.toString()));
+    setSuccessMessage('🤖 Test negotiation round added to activity feed!');
+
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 3000);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-emerald-950 dark:to-gray-900 p-4 pt-20">
@@ -226,20 +309,30 @@ export function BargainBot({ onBack }: BargainBotProps) {
             </div>
           </div>
 
-          <button className="w-full mt-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:shadow-lg transition-all"
-            onClick={() => {
-              console.log('💾 Saving bargain bot configuration:', {
-                selectedProductId,
-                productName: selectedProduct?.name,
-                minPrice,
-                maxPrice,
-                negotiationStyle,
-                autoAccept
-              });
-              alert(`${t('Configuration Saved')}\n\n${t('Min Price')}: ₹${minPrice}\n${t('Max Price')}: ₹${maxPrice}\n${t('Negotiation-Style')}: ${negotiationStyle}\n${t('Auto-Accept')}: ${autoAccept ? 'Yes' : 'No'}\n\nVani will now negotiate within these limits for you!`);
-            }}
+          <button 
+            className="w-full mt-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleSaveConfiguration}
+            disabled={isSaving}
           >
-            {t('Save Configuration')}
+            {isSaving ? '⏳ Saving...' : t('Save Configuration')}
+          </button>
+
+          {successMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mt-4 p-4 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-xl text-sm"
+            >
+              {successMessage}
+            </motion.div>
+          )}
+
+          <button 
+            className="w-full mt-3 py-3 border-2 border-purple-600 text-purple-600 dark:text-purple-400 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
+            onClick={handleTestNegotiation}
+          >
+            🧪 Test Negotiation Round
           </button>
         </motion.div>
 
@@ -255,56 +348,84 @@ export function BargainBot({ onBack }: BargainBotProps) {
             <h3 className="text-xl text-gray-900 dark:text-white">{t('Autonomous Activity Feed')}</h3>
           </div>
 
-          <div className="space-y-4">
-            {activities.map((activity, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + (index * 0.1) }}
-                className={`p-4 rounded-xl border-l-4 ${
-                  activity.status === 'success' ? 'border-green-500 bg-green-50 dark:bg-green-900/20' :
-                  activity.status === 'completed' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' :
-                  activity.status === 'rejected' ? 'border-red-500 bg-red-50 dark:bg-red-900/20' :
-                  'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <p className="text-gray-900 dark:text-white mb-1">{activity.message}</p>
-                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                      <Clock className="w-3 h-3" />
-                      <span>{activity.time}</span>
+          {negotiationHistory.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400 mb-2">❌ No negotiation history yet</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">Save a configuration and test a negotiation round to see activity here.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {negotiationHistory.map((activity, index) => (
+                <motion.div
+                  key={activity.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 + (index * 0.1) }}
+                  className={`p-4 rounded-xl border-l-4 ${
+                    activity.action === 'accept' ? 'border-green-500 bg-green-50 dark:bg-green-900/20' :
+                    activity.action === 'counter' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' :
+                    'border-red-500 bg-red-50 dark:bg-red-900/20'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        {activity.action === 'accept' && <Check className="w-4 h-4 text-green-600" />}
+                        {activity.action === 'counter' && <TrendingUp className="w-4 h-4 text-blue-600" />}
+                        {activity.action === 'decline' && <X className="w-4 h-4 text-red-600" />}
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                          Buyer offered ₹{activity.buyerOffer}
+                        </span>
+                      </div>
+                      <p className="text-gray-900 dark:text-white mb-2">{activity.message}</p>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                        <Clock className="w-3 h-3" />
+                        <span>{new Date(activity.timestamp).toLocaleString()}</span>
+                      </div>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-xs whitespace-nowrap flex items-center gap-1 ${
+                      activity.action === 'accept' ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200' :
+                      activity.action === 'counter' ? 'bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200' :
+                      'bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200'
+                    }`}>
+                      {activity.action === 'accept' && '✓ Accepted'}
+                      {activity.action === 'counter' && activity.counterOffer && `↗ ₹${activity.counterOffer}`}
+                      {activity.action === 'decline' && '✗ Declined'}
                     </div>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-xs ${
-                    activity.status === 'success' ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200' :
-                    activity.status === 'completed' ? 'bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200' :
-                    activity.status === 'rejected' ? 'bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200' :
-                    'bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200'
-                  }`}>
-                    {activity.status}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           {/* Stats Summary */}
           <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <div className="text-center">
-              <p className="text-2xl text-gray-900 dark:text-white mb-1">8</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{t('bargain.active')}</p>
+              <p className="text-2xl text-blue-600 dark:text-blue-400 mb-1">{negotiationStats.countered || 0}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Countered</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl text-green-600 dark:text-green-400 mb-1">24</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{t('bargain.completed')}</p>
+              <p className="text-2xl text-green-600 dark:text-green-400 mb-1">{negotiationStats.accepted || 0}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Accepted</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl text-amber-600 dark:text-amber-400 mb-1">₹12,450</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{t('bargain.earnedToday')}</p>
+              <p className="text-2xl text-amber-600 dark:text-amber-400 mb-1">₹{Math.round(negotiationStats.averageCounterOffer || 0)}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Avg Counter</p>
             </div>
           </div>
+
+          {/* Soft Floor Info */}
+          {selectedProductId && (
+            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg">
+              <h4 className="text-sm font-semibold text-amber-900 dark:text-amber-200 mb-2">📊 Price Protection (Soft Floor)</h4>
+              <div className="text-xs text-amber-800 dark:text-amber-300 space-y-1">
+                <p>• <strong>Hard Floor:</strong> ₹{getHardFloor(parseInt(floorPrice))} (10% flexibility)</p>
+                <p>• <strong>Soft Floor:</strong> ₹{getSoftFloor(parseInt(floorPrice))} (5% flexibility)</p>
+                <p>• <strong>Strategy:</strong> Moderate offers in ₹500-1000 increments</p>
+                <p>• <strong>Status:</strong> {autoAccept ? '🟢 Always On' : '⚫ Inactive'}</p>
+              </div>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>

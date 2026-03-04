@@ -1,6 +1,8 @@
 import { motion } from 'motion/react';
-import { ArrowLeft, Instagram, ShoppingBag, Globe, Check, Sparkles, Copy } from 'lucide-react';
+import { ArrowLeft, Instagram, ShoppingBag, Globe, Check, Sparkles, Copy, Volume2 } from 'lucide-react';
 import { useState } from 'react';
+import { TranslationSelector, useTranslation } from '../TranslationSelector';
+import { AudioPlayer } from '../AudioPlayer';
 
 import productimg from 'figma:asset/852ca5c1ac40dbd85cdb673b76a77225c11846b5.png';
 
@@ -14,6 +16,9 @@ export function MarketingReview({ onBack }: MarketingReviewProps) {
   const [showDetailedText, setShowDetailedText] = useState(
     localStorage.getItem('artisan_detailed_text') === 'true'
   );
+  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'hi' | 'ta'>('en');
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+  const [audioText, setAudioText] = useState('');
 
   // Load product from AI Studio if available
   const pendingProduct = localStorage.getItem('pending_product');
@@ -90,6 +95,53 @@ export function MarketingReview({ onBack }: MarketingReviewProps) {
             <p className="text-gray-600 dark:text-gray-400">AI-generated content optimized for each platform</p>
           </div>
         </motion.div>
+
+        {/* Translation & Audio Controls */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="flex flex-col sm:flex-row items-center gap-4 mb-6 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg"
+        >
+          <TranslationSelector
+            content={{ en: productName }}
+            className="flex-1"
+          />
+          
+          <button
+            onClick={() => {
+              setShowAudioPlayer(true);
+              setAudioText(selectedPlatform === 'instagram' 
+                ? marketingContent[selectedPlatform].caption
+                : selectedPlatform === 'amazon'
+                ? marketingContent[selectedPlatform].description
+                : selectedPlatform === 'etsy'
+                ? marketingContent[selectedPlatform].description
+                : marketingContent[selectedPlatform].description
+              );
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors text-blue-900 dark:text-blue-300 font-medium text-sm"
+          >
+            <Volume2 className="w-4 h-4" />
+            Listen
+          </button>
+        </motion.div>
+
+        {/* Audio Player */}
+        {showAudioPlayer && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <AudioPlayer
+              text={audioText}
+              language={selectedLanguage}
+              title="Product Description"
+              onClose={() => setShowAudioPlayer(false)}
+            />
+          </motion.div>
+        )}
 
         {/* Platform Tabs */}
         <motion.div
