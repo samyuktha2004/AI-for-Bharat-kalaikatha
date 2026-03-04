@@ -1,6 +1,8 @@
-import { Moon, Sun, User, Palette } from 'lucide-react';
+import { Moon, Sun, User, Palette, Edit2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useState } from 'react';
+import { UsernameEditModal } from './UsernameEditModal';
 import logoIcon from 'figma:asset/47690a220b997aa35549fe419decf1f499e5d1e2.png';
 import logoText from 'figma:asset/839d5fc81266cc945ac41643b120ebf74a13775a.png';
 
@@ -12,6 +14,7 @@ interface TopBarProps {
 export function TopBar({ onLoginClick, onArtisanPortalClick }: TopBarProps) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   const isArtisan = user?.type === 'artisan';
   const buttonBaseClass = "flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 rounded-full shadow-sm hover:shadow-md transition-all flex-shrink-0";
@@ -66,15 +69,24 @@ export function TopBar({ onLoginClick, onArtisanPortalClick }: TopBarProps) {
 
           {/* User Profile / Login */}
           {user ? (
-            <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-full pl-2 pr-3 py-1.5 shadow-sm flex-shrink-0">
+            <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-full pl-2 pr-3 py-1.5 shadow-sm flex-shrink-0 group">
               <img
                 src={user.avatar}
                 alt={user.name}
                 className="w-6 h-6 md:w-8 md:h-8 rounded-full"
               />
-              <span className="text-xs md:text-sm text-gray-900 dark:text-white hidden md:inline truncate max-w-[100px]">
-                {user.name}
-              </span>
+              <div className="flex items-center gap-1">
+                <span className="text-xs md:text-sm text-gray-900 dark:text-white hidden md:inline truncate max-w-[100px]">
+                  {user.name}
+                </span>
+                <button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="p-1 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors opacity-0 group-hover:opacity-100 md:opacity-100"
+                  title="Edit username"
+                >
+                  <Edit2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
               <button
                 onClick={logout}
                 className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -93,6 +105,15 @@ export function TopBar({ onLoginClick, onArtisanPortalClick }: TopBarProps) {
           )}
         </div>
       </div>
+
+      {/* Username Edit Modal */}
+      {user && (
+        <UsernameEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          currentName={user.name}
+        />
+      )}
     </div>
   );
 }

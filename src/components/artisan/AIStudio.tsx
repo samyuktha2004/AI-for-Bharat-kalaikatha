@@ -5,6 +5,7 @@ import { useFileUpload, useImageAnalysis, useDeviceCapability, useVoiceInput } f
 
 interface AIStudioProps {
   onBack: () => void;
+  onNavigate?: (view: string) => void;
   onSaveProduct?: (product: {
     image: string;
     enhancedImage: string;
@@ -15,7 +16,7 @@ interface AIStudioProps {
   }) => void;
 }
 
-export function AIStudio({ onBack, onSaveProduct }: AIStudioProps) {
+export function AIStudio({ onBack, onNavigate, onSaveProduct }: AIStudioProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [enhancedUrl, setEnhancedUrl] = useState<string | null>(null);
@@ -281,7 +282,7 @@ Return ONLY valid JSON, no markdown.`;
       return;
     }
     
-    alert(`✨ Generating marketing content for "${productName}"...\n\nThis will create:\n• Instagram post\n• Amazon listing\n• Etsy description\n\n(Redirecting to Marketing Review...)`);
+    alert(`✨ Generating marketing content for "${productName}"...\n\nThis will create:\n• Instagram post\n• Amazon listing\n• Etsy description\n• Flipkart listing`);
     
     // Save to localStorage for Marketing Review to use
     localStorage.setItem('pending_product', JSON.stringify({
@@ -290,6 +291,11 @@ Return ONLY valid JSON, no markdown.`;
       image: enhancedUrl || previewUrl,
       analysis,
     }));
+    
+    // Navigate to marketing review
+    if (onNavigate) {
+      onNavigate('marketing');
+    }
   };
 
   // Listen for voice input results

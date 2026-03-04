@@ -124,7 +124,7 @@ export function ArtisanFlow() {
         )}
         
         {currentView === 'dashboard' && <ArtisanDashboard onNavigate={navigateTo} />}
-        {currentView === 'studio' && <AIStudio onBack={navigateToDashboard} />}
+        {currentView === 'studio' && <AIStudio onBack={navigateToDashboard} onNavigate={navigateTo} />}
         {currentView === 'bargain' && <BargainBot onBack={navigateToDashboard} />}
         {currentView === 'marketing' && <MarketingReview onBack={navigateToDashboard} />}
         {currentView === 'shop' && <MyShop onBack={navigateToDashboard} onNavigate={navigateTo} />}
