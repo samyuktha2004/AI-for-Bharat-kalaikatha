@@ -376,26 +376,31 @@ npm run build
 
 ### Deployment Options
 
-#### Vercel (Recommended)
+#### AWS Amplify (Recommended for AWS Integration)
 
 ```bash
-# Install Vercel CLI
-npm i -g vercel
+# Install Amplify CLI
+npm i -g @aws-amplify/cli
 
-# Deploy
-vercel --prod
+# Initialize and deploy
+amplify init
+amplify add hosting
+amplify publish
 
-# Or connect GitHub repo for auto-deploy
+# Or connect GitHub repo for auto-deploy via Amplify Console
 ```
 
-#### Netlify
+#### AWS Amplify
 
 ```bash
-# Install Netlify CLI
-npm i -g netlify-cli
+# Install Amplify CLI
+npm i -g @aws-amplify/cli
+
+# Initialize Amplify
+amplify init
 
 # Deploy
-netlify deploy --prod
+amplify publish
 ```
 
 #### AWS Amplify

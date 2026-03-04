@@ -162,13 +162,8 @@ npm run dev
 
 ## 🚀 Deployment
 
-### Vercel:
-1. Dashboard → Project → Settings → Environment Variables
-2. Add all `VITE_*` variables
-3. Redeploy
-
-### Netlify:
-1. Site settings → Build & deploy → Environment
+### AWS Amplify:
+1. AWS Amplify Console → App settings → Environment variables
 2. Add all `VITE_*` variables
 3. Redeploy
 

@@ -165,8 +165,8 @@ All services have graceful fallbacks if credentials are missing:
 ## 🚀 Next Steps
 
 1. **Test locally:** Run `npm run dev` and test each feature
-2. **Deploy:** Push to production (Vercel/Netlify)
-3. **Monitor:** Check Azure portal for API usage
+2. **Deploy:** Push to production (AWS Amplify)
+3. **Monitor:** Check AWS CloudWatch for API usage
 4. **Optimize:** Review caching strategy after 1 week
 
 ---

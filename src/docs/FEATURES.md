@@ -384,19 +384,16 @@ Buyer:
 - **Production:** Ready for deployment (needs AWS credentials)
 
 ### Deployment Options
-1. **Vercel** (recommended)
+1. **AWS Amplify** (recommended for AWS integration)
+   - Native AWS integration
+   - Direct Cognito, S3, Lambda integration
+   - Free tier: 500 build minutes/month
+   - Full control, scalable
+   
+2. **Vercel** (traditional alternative)
    - Zero-config deployment
    - Auto HTTPS, CDN
-   - Free tier: Perfect for MVP
-   
-2. **Netlify** (alternative)
-   - Similar to Vercel
-   - Good DX
-   
-3. **AWS Amplify** (full AWS)
-   - Native AWS integration
-   - More control
-   - Slightly more complex
+   - Free tier: Perfect for non-AWS projects
 
 ### Configuration Needed
 - Environment variables (see .env.example)

@@ -84,7 +84,7 @@
 - OpenAI GPT-4-vision (image analysis)
 
 **Deployment:**
-- Vercel/Netlify (hosting)
+- AWS Amplify (hosting)
 - GitHub Actions (CI/CD)
 - CloudWatch (monitoring)
 
@@ -1185,7 +1185,7 @@ GitHub Actions (CI/CD)
   - Build production bundle
   - Run tests (future)
         ↓
-Vercel / Netlify
+AWS Amplify
   - Static site hosting
   - Auto HTTPS
   - Global CDN

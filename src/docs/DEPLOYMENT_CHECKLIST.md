@@ -131,7 +131,7 @@
 
 ### 4. Deploy to Hosting
 ```
-□ Choose platform (Vercel/Netlify/Firebase Hosting)
+□ Choose platform (AWS Amplify recommended for hackathon)
 □ Configure environment variables in platform
 □ Set up custom domain (optional)
 □ Configure HTTPS
@@ -314,28 +314,39 @@
 
 ## 🚀 Deployment Platforms
 
-### Recommended: Vercel
+### Recommended: AWS Amplify
 ```bash
-# Install Vercel CLI
-npm i -g vercel
+# Install AWS Amplify CLI
+npm i -g @aws-amplify/cli
+
+# Initialize Amplify
+amplify init
+
+# Add Amplify Hosting
+amplify add hosting
 
 # Deploy
-vercel
+amplify publish
 
-# Add environment variables in Vercel dashboard
-# https://vercel.com/[your-project]/settings/environment-variables
+# Manage environment variables in AWS Console
+# https://console.aws.amazon.com/amplify/
 ```
+# Install Amplify CLI
+npm i -g @aws-amplify/cli
 
-### Alternative: Netlify
-```bash
-# Install Netlify CLI
-npm i -g netlify-cli
+# Configure AWS credentials
+amplify configure
+
+# Initialize Amplify project
+amplify init
+
+# Add hosting
+amplify add hosting
 
 # Deploy
-netlify deploy --prod
+amplify publish
 
-# Add environment variables in Netlify dashboard
-# https://app.netlify.com/sites/[your-site]/settings/deploys#environment
+# Manage environment variables in amplify/backend/hosting/config.json
 ```
 
 ### Alternative: Firebase Hosting

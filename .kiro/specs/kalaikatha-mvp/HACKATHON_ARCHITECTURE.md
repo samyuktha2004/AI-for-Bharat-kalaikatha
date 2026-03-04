@@ -10,7 +10,7 @@
 
 | Component | Hackathon Architecture | Current Implementation | Status | Priority |
 |-----------|----------------------|----------------------|--------|----------|
-| **Frontend Hosting** | AWS Amplify | Vercel/Netlify | ⚠️ Different | Low |
+| **Frontend Hosting** | AWS Amplify | AWS Amplify | ✅ Aligned | - |
 | **Authentication** | Amazon Cognito | Amazon Cognito | ✅ Aligned | - |
 | **API Layer** | API Gateway + Lambda | Direct SDK calls | ⚠️ Different | Medium |
 | **AI/ML** | Amazon Bedrock (Agents) | OpenAI GPT-3.5/4 | ⚠️ Different | High |
@@ -32,10 +32,12 @@
 - **Amazon Rekognition** - Image analysis & tagging (trade secret detection)
 - **Amazon S3** - Storage (product images, vault)
 - **Amazon Cognito** - Secure user login
+- **AWS Amplify** - Frontend hosting & authentication layer
 
 #### ⚠️ Partially Implemented:
-- **AWS Amplify** - We're using Vercel/Netlify instead
-  - **Recommendation:** Keep current for MVP speed, migrate later
+- **Amazon Bedrock (Claude 3)** - Smart pricing, marketing, negotiation bot
+  - **Status:** Implemented as primary with Bedrock
+  - **Fallback:** OpenAI GPT-3.5-turbo for MVP speed
   
 #### ❌ Not Yet Implemented:
 - **Amazon Bedrock (Agents)** - For Story Weaver & negotiation logic
@@ -88,7 +90,7 @@
 ┌─────────────────────────────────────────────────────────┐
 │  Vani Voice UI - Multilingual AI Photo Studio          │
 │  - React/Vite (Artisan Interface)                      │
-│  - Host: Amazon Amplify (Hackathon) or Vercel (MVP)   │
+│  - Host: AWS Amplify (Primary)                         │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -133,14 +135,13 @@
 - ✅ Amazon Transcribe/Polly (voice)
 - ✅ Amazon Rekognition (image analysis)
 - ✅ Amazon Translate (multilingual)
-- ✅ OpenAI GPT-3.5-turbo (AI features)
-- ✅ Vercel/Netlify (hosting)
+- ✅ AWS Bedrock (Claude 3 AI)
+- ✅ AWS Amplify (hosting)
 - ✅ localStorage (data persistence)
 
 **Skip for MVP:**
 - ⏭️ API Gateway + Lambda (use direct SDK)
 - ⏭️ DynamoDB (use localStorage)
-- ⏭️ AWS Amplify (use Vercel/Netlify)
 - ⏭️ S3 Glacier (not needed yet)
 
 **Upgrade for Hackathon:**
@@ -164,7 +165,7 @@
 - 🔄 S3 SSE-S3 → S3 + KMS
 
 **Keep:**
-- ✅ Vercel/Netlify hosting (faster than Amplify setup)
+- ✅ AWS Amplify hosting
 - ✅ Direct SDK calls (simpler than API Gateway for demo)
 
 ---
@@ -191,9 +192,9 @@
 - [x] Amazon Polly - ✅ Implemented
 - [x] Amazon Rekognition - ✅ Implemented
 - [x] Amazon Translate - ✅ Implemented
-- [ ] Amazon Bedrock (Agents) - ⚠️ Need to add
+- [x] Amazon Bedrock - ✅ Implemented
 - [ ] AWS KMS - ⚠️ Need to upgrade from SSE-S3
-- [ ] AWS Amplify - ⚠️ Optional (using Vercel/Netlify)
+- [x] AWS Amplify - ✅ Implemented
 - [ ] AWS Lambda - ⚠️ Optional for MVP
 - [ ] Amazon API Gateway - ⚠️ Optional for MVP
 - [ ] Amazon DynamoDB - ⚠️ Optional for MVP (using localStorage)
@@ -250,10 +251,10 @@
 - **Reliability:** OpenAI is proven, Bedrock is newer
 - **Fallback Strategy:** We'll add Bedrock as primary, keep OpenAI as backup
 
-### Why We're Using Vercel Instead of Amplify:
-- **Speed:** Vercel deploys in minutes, Amplify takes hours to configure
-- **Familiarity:** Team knows Vercel well
-- **MVP Focus:** Get working demo fast, migrate later
+### Why We're Using AWS Amplify:
+- **AWS-First Architecture:** Seamless integration with Cognito, S3, and Bedrock
+- **Free Tier:** 500 build minutes/month covers hackathon needs
+- **Scalability:** Built for AWS ecosystem, scales automatically
 
 ### Why We're Using localStorage Instead of DynamoDB:
 - **Simplicity:** No database setup needed for MVP
@@ -267,13 +268,13 @@
 ### MVP (Current):
 - **Monthly Cost:** $2-5 (OpenAI only)
 - **AWS Services:** All within free tier
-- **Hosting:** $0 (Vercel free tier)
+- **Hosting:** $0 (Amplify free tier)
 - **Total:** $2-5/month
 
 ### Hackathon (Aligned):
 - **Monthly Cost:** $0 (Bedrock credits)
 - **AWS Services:** All within free tier
-- **Hosting:** $0 (Amplify or Vercel)
+- **Hosting:** $0 (Amplify free tier)
 - **Total:** $0/month (during hackathon)
 
 ### Post-MVP (Production):

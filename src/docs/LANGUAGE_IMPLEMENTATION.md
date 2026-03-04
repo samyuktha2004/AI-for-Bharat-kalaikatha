@@ -272,7 +272,7 @@ When ready to implement real downloads:
 
 ### Server Hosting:
 - Minimal load (just serving static JSON files)
-- Can use free tier of Vercel/Netlify
+- Can use AWS Amplify's free tier (next 500 free build minutes/month)
 
 ---
 

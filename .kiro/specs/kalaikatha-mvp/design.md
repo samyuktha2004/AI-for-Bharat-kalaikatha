@@ -38,9 +38,9 @@
 
 ### Technology Stack
 - **Frontend:** React, TypeScript, Tailwind CSS, Motion
-- **AWS:** Cognito, S3, Translate, Polly, Transcribe, Rekognition
-- **AI:** OpenAI GPT-3.5-turbo, GPT-4-vision
-- **Deployment:** Vercel/Netlify + GitHub Actions
+- **AWS:** Cognito, S3, Translate, Polly, Transcribe, Rekognition, Bedrock, Amplify
+- **AI:** AWS Bedrock (Claude 3), OpenAI GPT-3.5-turbo (fallback)
+- **Deployment:** AWS Amplify + GitHub Actions
 
 ---
 

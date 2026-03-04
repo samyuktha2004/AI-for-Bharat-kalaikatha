@@ -629,14 +629,22 @@ npm run preview
 # Test production build before deploy
 ```
 
-### Deployment (Vercel)
+### Deployment (AWS Amplify)
 ```bash
-# 1. Connect GitHub repo to Vercel
-# 2. Add environment variables in Vercel dashboard
-# 3. Push to main branch → auto-deploy
+# 1. Install Amplify CLI
+npm i -g @aws-amplify/cli
 
-# Manual:
-vercel --prod
+# 2. Initialize Amplify project
+amplify init
+
+# 3. Add hosting
+amplify add hosting
+
+# 4. Configure environment variables in AWS Console
+# https://console.aws.amazon.com/amplify/
+
+# 5. Deploy
+amplify publish
 ```
 
 **Environment Variables Needed:**
@@ -734,8 +742,8 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 ### Services
 - AWS: https://aws.amazon.com/console
+- AWS Amplify: https://aws.amazon.com/amplify/
 - OpenAI: https://platform.openai.com
-- Vercel: https://vercel.com/dashboard
 
 ### Tools
 - VS Code: https://code.visualstudio.com

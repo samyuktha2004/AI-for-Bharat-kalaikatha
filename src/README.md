@@ -333,7 +333,7 @@ VITE_OPENAI_MODEL=gpt-3.5-turbo
 ## 🚧 What's Next
 
 ### Post-Hackathon (Week 1)
-- [ ] Deploy to Vercel with AWS credentials
+- [ ] Deploy to AWS Amplify with Cognito integration
 - [ ] Record 90-second demo video
 - [ ] Beta test with 10 real artisans
 - [ ] Collect feedback, iterate
@@ -415,7 +415,7 @@ npm run lint             # Lint code (ESLint)
 npm run type-check       # TypeScript checking
 
 # Deployment
-vercel --prod            # Deploy to Vercel
+amplify publish        # Deploy to AWS Amplify
 ```
 
 ---

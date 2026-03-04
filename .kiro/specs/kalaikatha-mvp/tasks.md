@@ -46,7 +46,7 @@
   - [ ]* 1.3.1 Initialize AWS Amplify project
   - [ ]* 1.3.2 Configure Amplify hosting
   - [ ]* 1.3.3 Set up auto-deployment from Git
-  - [ ]* 1.3.4 Alternative: Keep Vercel/Netlify for faster MVP
+  - [ ]* 1.3.4 ✅ Using AWS Amplify for all deployments
 
 - [ ]* 1.4 API Gateway + Lambda (Hackathon Architecture)
   - [ ]* 1.4.1 Set up Amazon API Gateway
@@ -68,7 +68,7 @@
 
 - [ ]* 1.7 CI/CD Pipeline
   - [ ]* 1.7.1 Set up GitHub Actions workflow
-  - [ ]* 1.7.2 Configure AWS Amplify or Vercel deployment
+  - [ ]* 1.7.2 Configure AWS Amplify deployment
   - [ ]* 1.7.3 Set up environment variables in deployment platform
 
 ---
@@ -547,7 +547,7 @@
 
 - [ ] 19.2 Production Deployment
   - [ ] 19.2.1 Build production bundle
-  - [ ] 19.2.2 Deploy to Vercel/Netlify
+  - [ ] 19.2.2 Deploy to AWS Amplify
   - [ ] 19.2.3 Configure custom domain
   - [ ] 19.2.4 Set up HTTPS/SSL
 
