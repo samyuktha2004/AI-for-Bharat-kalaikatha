@@ -5,13 +5,14 @@
 
 import { Amplify } from 'aws-amplify';
 
-// Configure Amplify with Cognito settings
+// Configure Amplify with Cognito settings - v6 format
 const COGNITO_CONFIG = {
   Auth: {
     Cognito: {
       userPoolId: import.meta.env?.VITE_AWS_COGNITO_USER_POOL_ID || '',
       userPoolClientId: import.meta.env?.VITE_AWS_COGNITO_CLIENT_ID || '',
       identityPoolId: import.meta.env?.VITE_AWS_COGNITO_IDENTITY_POOL_ID || '',
+      region: import.meta.env?.VITE_AWS_REGION || 'ap-south-1',
     }
   }
 };
@@ -56,10 +57,15 @@ export async function signUpUser(
         userAttributes: {
           email,
           name: name || email.split('@')[0],
-          'custom:userType': userType,
+          // Store userType in localStorage instead of custom attribute
         },
       },
     });
+
+    // Store userType in localStorage for app logic
+    if (userId) {
+      localStorage.setItem('kalaikatha_user_type', userType);
+    }
 
     return {
       success: true,
