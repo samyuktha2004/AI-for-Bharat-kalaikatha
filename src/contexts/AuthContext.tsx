@@ -11,6 +11,8 @@ import {
   signOutUser,
   getCurrentAuthUser,
   updateUserName,
+  confirmSignUpOTP,
+  resendConfirmationCode,
 } from '../services/AWSAuthService';
 import { toast } from 'sonner@2.0.3';
 
@@ -30,6 +32,9 @@ interface AuthContextType {
   updateName: (name: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  pendingVerification: { email: string; userType: 'buyer' | 'artisan'; name?: string } | null;
+  verifyOTP: (email: string, otp: string, userType: 'buyer' | 'artisan', password: string) => Promise<void>;
+  resendOTP: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,6 +43,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [pendingVerification, setPendingVerification] = useState<{ email: string; userType: 'buyer' | 'artisan'; name?: string } | null>(null);
 
   // ── Restore session on mount ─────────────────────────────────────────────
   useEffect(() => {
@@ -128,12 +134,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('kalaikatha_user_type', type);
         if (name) localStorage.setItem('kalaikatha_name_confirmed', 'true');
 
-        if (result.isSignUpComplete) {
-          await login(email, password, type);
-        } else {
-          toast.info('Check your email for a verification code to complete signup.');
-        }
-        toast.success('Account created successfully!');
+        // Set pending verification - user must confirm OTP
+        setPendingVerification({ email, userType: type, name });
+        toast.info('Account created! Check your email for a verification code.');
       } catch (error: any) {
         console.error('Cognito signup error:', error);
         if (error.message?.includes('UsernameExistsException')) {
@@ -165,6 +168,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('kalaikatha_user_type', type);
       if (name) localStorage.setItem('kalaikatha_name_confirmed', 'true');
       toast.success('Account created! (Demo Mode — add AWS Cognito credentials to go live)');
+    }
+  };
+
+  // ── Verify OTP ───────────────────────────────────────────────────────────
+  const verifyOTP = async (email: string, otp: string, userType: 'buyer' | 'artisan', password: string) => {
+    if (isCognitoConfigured()) {
+      try {
+        // Confirm signup with OTP
+        await confirmSignUpOTP(email, otp);
+        toast.success('Email verified successfully!');
+        
+        // Clear pending verification
+        setPendingVerification(null);
+        
+        // Auto-login the user
+        await login(email, password, userType);
+      } catch (error: any) {
+        console.error('OTP verification error:', error);
+        if (error.message?.includes('CodeMismatchException') || error.message?.includes('invalid')) {
+          toast.error('Invalid verification code. Please try again.');
+          throw new Error('Invalid OTP');
+        } else if (error.message?.includes('ExpiredCodeException') || error.message?.includes('expired')) {
+          toast.error('Verification code has expired. Request a new one.');
+          throw new Error('Expired OTP');
+        } else {
+          toast.error(error.message || 'Failed to verify code. Please try again.');
+          throw error;
+        }
+      }
+    }
+  };
+
+  // ── Resend OTP ───────────────────────────────────────────────────────────
+  const resendOTP = async (email: string) => {
+    if (isCognitoConfigured()) {
+      try {
+        await resendConfirmationCode(email);
+        toast.success('Verification code resent to your email!');
+      } catch (error: any) {
+        console.error('Resend code error:', error);
+        toast.error(error.message || 'Failed to resend code. Please try again.');
+        throw error;
+      }
     }
   };
 
@@ -200,6 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.success('Signed out successfully!');
     }
     setUser(null);
+    setPendingVerification(null);
     localStorage.removeItem('kalaikatha_user');
     localStorage.removeItem('kalaikatha_user_type');
   };
@@ -207,7 +254,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   if (isLoadingAuth) return null;
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, updateName, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, login, signup, updateName, logout, isAuthenticated: !!user, pendingVerification, verifyOTP, resendOTP }}>
       {children}
     </AuthContext.Provider>
   );

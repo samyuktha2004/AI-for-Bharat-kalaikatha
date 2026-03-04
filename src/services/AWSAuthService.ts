@@ -159,6 +159,41 @@ export async function updateUserName(name: string) {
 }
 
 /**
+ * Confirm signup with OTP code
+ */
+export async function confirmSignUpOTP(email: string, confirmationCode: string) {
+  const { confirmSignUp } = await import('aws-amplify/auth');
+  
+  try {
+    await confirmSignUp({
+      username: email,
+      confirmationCode,
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error('Cognito OTP confirmation error:', error);
+    throw new Error(error.message || 'OTP verification failed');
+  }
+}
+
+/**
+ * Resend confirmation code to user's email
+ */
+export async function resendConfirmationCode(email: string) {
+  const { resendSignUpConfirmationCode } = await import('aws-amplify/auth');
+  
+  try {
+    const result = await resendSignUpConfirmationCode({
+      username: email,
+    });
+    return { success: true, codeDeliveryDetails: result.codeDeliveryDetails };
+  } catch (error: any) {
+    console.error('Cognito resend code error:', error);
+    throw new Error(error.message || 'Failed to resend code');
+  }
+}
+
+/**
  * Check if user is authenticated
  */
 export async function isAuthenticated(): Promise<boolean> {

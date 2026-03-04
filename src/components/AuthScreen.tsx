@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { Mail, Lock, User, ArrowRight, Sparkles, Mic, Phone, MicOff } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { OTPVerificationModal } from './OTPVerificationModal';
 import logoIcon from 'figma:asset/47690a220b997aa35549fe419decf1f499e5d1e2.png';
 import logoText from 'figma:asset/839d5fc81266cc945ac41643b120ebf74a13775a.png';
 
@@ -46,9 +47,13 @@ export function AuthScreen({ onSuccess, initialUserType = 'buyer' }: AuthScreenP
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isListeningName, setIsListeningName] = useState(false);
-  const { login, signup } = useAuth();
+  const { login, signup, pendingVerification } = useAuth();
 
   const theme = THEMES[userType];
+
+  // Store credentials for OTP verification
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
 
   const handleVoiceInput = () => {
     setIsListening(true);
@@ -110,10 +115,13 @@ export function AuthScreen({ onSuccess, initialUserType = 'buyer' }: AuthScreenP
       const identifier = loginMethod === 'email' ? email : phone;
       if (mode === 'login') {
         await login(identifier, password, userType);
+        onSuccess();
       } else {
         await signup(identifier, password, userType, name);
+        // Store credentials for OTP verification
+        setSignupEmail(identifier);
+        setSignupPassword(password);
       }
-      onSuccess();
     } catch (error: any) {
       console.error('Auth error:', error);
       
@@ -361,6 +369,16 @@ export function AuthScreen({ onSuccess, initialUserType = 'buyer' }: AuthScreenP
           Continue browsing as guest →
         </motion.button>
       </motion.div>
+
+      {/* OTP Verification Modal */}
+      {pendingVerification && (
+        <OTPVerificationModal 
+          email={pendingVerification.email}
+          password={signupPassword}
+          userType={pendingVerification.userType}
+          onClose={onSuccess}
+        />
+      )}
     </div>
   );
 }
