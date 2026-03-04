@@ -9,7 +9,7 @@ interface MarketingReviewProps {
 }
 
 export function MarketingReview({ onBack }: MarketingReviewProps) {
-  const [selectedPlatform, setSelectedPlatform] = useState<'instagram' | 'amazon' | 'etsy'>('instagram');
+  const [selectedPlatform, setSelectedPlatform] = useState<'instagram' | 'amazon' | 'etsy' | 'flipkart'>('instagram');
   const [posted, setPosted] = useState(false);
   const [showDetailedText, setShowDetailedText] = useState(
     localStorage.getItem('artisan_detailed_text') === 'true'
@@ -25,22 +25,40 @@ export function MarketingReview({ onBack }: MarketingReviewProps) {
 
   const marketingContent = {
     instagram: {
-      title: `The Sacred Dance: ${productName} ✨🕉️`,
-      caption: `Witness the divine dance of Shiva in solid bronze. Each chisel mark tells a story passed down through 9 generations.`,
-      description: `${productDescription}\n\nUnlike hollow machine-molds, this piece is a Solid Lost-Wax Cast, carrying a unique weight and over nine generations of craftsmanship history.\n\nCrafted using the traditional lost-wax method passed down from my grandfather. Each piece takes days of intensive hand-chisel work.\n\n#BronzeArt #Nataraja #ThanjavurBronze #LostWaxCasting #IndianHeritageCrafts #SacredArt #TempleBronze #HandmadeInIndia #SupportArtisans #TamilNaduCrafts`,
-      hashtags: ['#BronzeArt', '#Nataraja', '#ThanjavurBronze', '#LostWaxCasting', '#IndianHeritageCrafts', '#SacredArt', '#TempleBronze', '#HandmadeInIndia'],
+      title: `${productName} ✨`,
+      caption: `Handcrafted with love and precision. Every piece tells a unique story. Made with passion by skilled artisans. 🇮🇳\n\n#HandmadeInIndia #IndianArtisan #ArtisanCraft #Handcrafted #SupportLocal #EthicalFashion #SustainableLiving #TraditionalCraft #MadeWithLove #Etsy #Amazon #Flipkart`,
+      hashtags: ['#HandmadeInIndia', '#IndianArtisan', '#ArtisanCraft', '#Handcrafted', '#SupportLocal', '#TraditionalCraft', '#Etsy', '#Amazon', '#Flipkart'],
       image: productImage,
     },
     amazon: {
-      title: `${productName} - Solid Lost-Wax Cast | Thanjavur Heritage`,
-      description: `Authentic Thanjavur bronze sculpture crafted by 9th generation master artisan. ${productDescription}. Unlike hollow machine-molds, this is a SOLID LOST-WAX CAST. Traditional hand-chisel work. Premium golden patina finish. Perfect for temple worship, meditation spaces, or luxury home decor. GI Tagged heritage craft from Tamil Nadu. Free shipping. Certificate of authenticity included.`,
-      keywords: 'thanjavur bronze, nataraja statue, lost wax casting, tamil nadu handicraft, temple bronze, solid bronze sculpture, indian religious art, heritage craft, handmade statue, shiva nataraja',
+      title: `${productName} - Handmade Authentic Indian Craft`,
+      bulletPoints: [
+        'Authentic handcrafted by skilled Indian artisans',
+        'Made from premium natural materials',
+        'Each piece is unique and one-of-a-kind',
+        'Perfect for home décor, gifts, or personal collection',
+        'Fair trade - supports traditional craft communities'
+      ],
+      description: `${productDescription}\n\nThis stunning ${productName} is an authentic handcrafted piece made by skilled Indian artisans using traditional techniques. Each item is carefully crafted with attention to detail, ensuring exceptional quality.\n\nWhy choose this product?\n• Authentic - Made by traditional artisans\n• Unique - Each piece is one-of-a-kind\n• Fair Trade - Supports artisan communities\n• Quality - Premium natural materials\n• Perfect Gift - For anyone who appreciates authentic craftsmanship\n\nSupport traditional Indian handicrafts today!`,
+      keywords: 'handmade, Indian, artisan, authentic, handicraft, traditional, fair trade, handcrafted, unique',
       image: productImage,
     },
     etsy: {
-      title: `Sacred ${productName} | 9th Generation Lost-Wax Cast | Thanjavur Temple Art`,
-      description: `This is not a mass-produced replica. Every curve, every detail is hand-chiselled using the traditional lost-wax method passed down through my family for 9 generations in Thanjavur, Tamil Nadu.\n\n${productDescription}\n\nThe golden patina is achieved through a family secret technique.\n\nEach piece is unique and made to order. Ships worldwide with certificate of authenticity. Supporting traditional metal-casting communities in South India.`,
-      tags: ['thanjavur bronze', 'nataraja statue', 'lost wax casting', 'tamil nadu craft', 'temple bronze', 'hindu deity', 'sacred art', 'heritage craft', 'shiva statue', 'indian sculpture'],
+      title: `${productName} - Handmade Indian Artisan Craft`,
+      description: `This beautiful ${productName} is an authentic handcrafted product, made by skilled Indian artisans using traditional techniques passed down through generations.\n\n${productDescription}\n\nEach piece is individually crafted with premium natural materials and exceptional attention to detail. Unlike mass-produced items, this product carries the uniqueness and soul of traditional Indian craftsmanship.\n\nPerfect for:\n• Home decoration\n• Gift-giving\n• Personal collection\n• Anyone appreciating authentic craftsmanship\n\nFair Trade: This purchase directly supports traditional artisan communities in India.\n\nShips worldwide with certificate of authenticity.`,
+      tags: ['handmade', 'Indian', 'artisan', 'authentic', 'handicraft', 'traditional', 'fair trade', 'unique', 'handcrafted'],
+      image: productImage,
+    },
+    flipkart: {
+      title: `${productName} | Authentic Handmade Indian Craft`,
+      highlights: [
+        'Handcrafted by skilled artisans',
+        'Premium natural materials',
+        'Authentic traditional craft',
+        'Unique one-of-a-kind piece',
+        'Fair trade certified'
+      ],
+      description: `Experience authentic Indian craftsmanship with this beautiful ${productName}.\n\n${productDescription}\n\nThis is a genuine handcrafted product made by traditional artisans using time-tested techniques. Each piece is unique and carries the mark of true craftsmanship.\n\nKey Features:\n✓ Handmade with premium materials\n✓ Authentic traditional design\n✓ Each piece is one-of-a-kind\n✓ Fair trade - supports artisans\n✓ Perfect for home décor and gifting\n\nMake a conscious choice. Support traditional Indian handicrafts. Free shipping on orders above ₹500.`,
       image: productImage,
     },
   };
@@ -78,42 +96,54 @@ export function MarketingReview({ onBack }: MarketingReviewProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-2 shadow-lg mb-6 flex gap-2"
+          className="bg-white dark:bg-gray-800 rounded-2xl p-2 shadow-lg mb-6 grid grid-cols-2 md:grid-cols-4 gap-2"
         >
           <button
             onClick={() => setSelectedPlatform('instagram')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${
+            className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${
               selectedPlatform === 'instagram'
                 ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white'
                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
             }`}
           >
             <Instagram className="w-5 h-5" />
-            <span>Instagram</span>
+            <span className="text-sm">Instagram</span>
           </button>
 
           <button
             onClick={() => setSelectedPlatform('amazon')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${
+            className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${
               selectedPlatform === 'amazon'
                 ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white'
                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
             }`}
           >
             <ShoppingBag className="w-5 h-5" />
-            <span>Amazon</span>
+            <span className="text-sm">Amazon</span>
           </button>
 
           <button
             onClick={() => setSelectedPlatform('etsy')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${
+            className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${
               selectedPlatform === 'etsy'
                 ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
             }`}
           >
             <Globe className="w-5 h-5" />
-            <span>Etsy</span>
+            <span className="text-sm">Etsy</span>
+          </button>
+
+          <button
+            onClick={() => setSelectedPlatform('flipkart')}
+            className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all ${
+              selectedPlatform === 'flipkart'
+                ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+            }`}
+          >
+            <ShoppingBag className="w-5 h-5" />
+            <span className="text-sm">Flipkart</span>
           </button>
         </motion.div>
 
@@ -145,19 +175,23 @@ export function MarketingReview({ onBack }: MarketingReviewProps) {
                   {selectedPlatform === 'instagram' && 'Instagram Post'}
                   {selectedPlatform === 'amazon' && 'Amazon Listing'}
                   {selectedPlatform === 'etsy' && 'Etsy Product'}
+                  {selectedPlatform === 'flipkart' && 'Flipkart Listing'}
                 </h3>
                 <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   onClick={() => {
                     const content = selectedPlatform === 'instagram' 
                       ? marketingContent.instagram.caption + '\n\n' + marketingContent.instagram.hashtags.join(' ')
                       : selectedPlatform === 'amazon'
-                      ? marketingContent.amazon.title + '\n\n' + marketingContent.amazon.description
-                      : marketingContent.etsy.title + '\n\n' + marketingContent.etsy.description;
+                      ? marketingContent.amazon.title + '\n\n' + marketingContent.amazon.bulletPoints.join('\n') + '\n\n' + marketingContent.amazon.description
+                      : selectedPlatform === 'etsy'
+                      ? marketingContent.etsy.title + '\n\n' + marketingContent.etsy.description
+                      : marketingContent.flipkart.title + '\n\n' + marketingContent.flipkart.highlights.join('\n') + '\n\n' + marketingContent.flipkart.description;
                     
                     navigator.clipboard.writeText(content).then(() => {
                       alert('✅ Copied!\n\nPaste into ' + 
                         (selectedPlatform === 'instagram' ? 'Instagram' : 
-                         selectedPlatform === 'amazon' ? 'Amazon' : 'Etsy'));
+                         selectedPlatform === 'amazon' ? 'Amazon' : 
+                         selectedPlatform === 'etsy' ? 'Etsy' : 'Flipkart'));
                       console.log('📋 Copied content for:', selectedPlatform);
                     });
                   }}
@@ -169,7 +203,24 @@ export function MarketingReview({ onBack }: MarketingReviewProps) {
               <h2 className="text-xl text-gray-900 dark:text-white mb-4">{content.title}</h2>
 
               <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-4">
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{content.description}</p>
+                {selectedPlatform === 'amazon' ? (
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 font-semibold mb-2">Description:</p>
+                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap text-sm">{content.description}</p>
+                    </div>
+                  </div>
+                ) : selectedPlatform === 'flipkart' ? (
+                  <div className="space-y-3">
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap text-sm">{content.description}</p>
+                  </div>
+                ) : selectedPlatform === 'instagram' ? (
+                  <div>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{content.caption}</p>
+                  </div>
+                ) : (
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{content.description}</p>
+                )}
               </div>
 
               {/* Platform-specific metadata */}
@@ -188,9 +239,14 @@ export function MarketingReview({ onBack }: MarketingReviewProps) {
 
               {selectedPlatform === 'amazon' && (
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">SEO Keywords:</p>
-                  <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3">
-                    <p className="text-sm text-gray-700 dark:text-gray-300">{marketingContent.amazon.keywords}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Key Bullet Points:</p>
+                  <div className="space-y-2">
+                    {marketingContent.amazon.bulletPoints.map((point, i) => (
+                      <div key={i} className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/30 p-2 rounded">
+                        <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm text-gray-700 dark:text-gray-300">{point}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
@@ -202,6 +258,19 @@ export function MarketingReview({ onBack }: MarketingReviewProps) {
                     {marketingContent.etsy.tags.map((tag, i) => (
                       <span key={i} className="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-full text-sm">
                         {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedPlatform === 'flipkart' && (
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Product Highlights:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {marketingContent.flipkart.highlights.map((highlight, i) => (
+                      <span key={i} className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm">
+                        {highlight}
                       </span>
                     ))}
                   </div>

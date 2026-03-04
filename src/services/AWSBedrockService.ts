@@ -161,24 +161,44 @@ export async function generateMarketingContent(
 
   if (isBedrockConfigured()) {
     try {
-      const prompt = `You are a master copywriter for Indian artisan products.
+      const prompt = `You are a master copywriter for Indian artisan products selling on multiple platforms.
 
-Create compelling marketing content for:
+Create platform-specific marketing content for:
 - Product: ${productName}
 - Craft Type: ${craftType}
 - Description: ${description}
 - Price: ₹${price}
 
-Return ONLY valid JSON (no markdown):
+Return ONLY valid JSON (no markdown, no explanation):
 {
-  "instagramCaption": "<engaging IG caption with 3-5 relevant hashtags>",
-  "whatsappMessage": "<short WhatsApp sales message in simple English>",
-  "exportTagline": "<professional tagline for international buyers>",
-  "storyTitle": "<artisan story title for personal branding>",
-  "keywords": ["<keyword1>", "<keyword2>", "<keyword3>", "<keyword4>", "<keyword5>"]
+  "instagram": {
+    "caption": "<engaging IG post caption with emojis and 5-8 relevant hashtags like #IndianArtisan #Handmade #Etsy #Amazon>",
+    "hashtags": ["#tag1", "#tag2", "#tag3", "#tag4", "#tag5"]
+  },
+  "etsy": {
+    "title": "<product title optimized for Etsy search>",
+    "description": "<detailed product description for Etsy (5-8 sentences, highlight uniqueness and craftsmanship)>",
+    "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
+  },
+  "amazon": {
+    "title": "<Amazon product title (keep under 200 chars)>",
+    "bulletPoints": [
+      "<point about materials and craftsmanship>",
+      "<point about uniqueness and authenticity>",
+      "<point about artisan details>",
+      "<point about care instructions>",
+      "<point about perfect gift or use case>"
+    ],
+    "description": "<Amazon product description (3-4 paragraphs)>"
+  },
+  "flipkart": {
+    "title": "<Flipkart product title>",
+    "description": "<product description for Flipkart with benefits and features>",
+    "highlights": ["highlight1", "highlight2", "highlight3", "highlight4"]
+  }
 }`;
 
-      const raw = await callClaude(prompt, 600);
+      const raw = await callClaude(prompt, 1200);
       const jsonMatch = raw.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const result = JSON.parse(jsonMatch[0]);
@@ -190,12 +210,39 @@ Return ONLY valid JSON (no markdown):
     }
   }
 
+  // Fallback content if Bedrock unavailable
+  const hashtags = ['#HandmadeInIndia', '#IndianArtisan', '#Handicrafts', '#Etsy', '#Amazon', '#ArtisanCraft', '#SupportLocal'];
   return {
-    instagramCaption: `✨ Handcrafted ${productName} by a master artisan!\n\nEvery piece tells a story of generations of skill and passion. Made with love in India 🇮🇳\n\n#HandmadeInIndia #${craftType.replace(/\s/g, '')} #IndianArtisan #Handicrafts #ArtisanCraft`,
-    whatsappMessage: `Hello! I'm selling handcrafted ${productName} for just ₹${price}. Made by a skilled artisan using traditional techniques. Interested? Let's talk!`,
-    exportTagline: `Authentic ${craftType} — A Masterpiece of Indian Heritage`,
-    storyTitle: `The Art Behind ${productName}`,
-    keywords: [craftType, 'handmade', 'Indian handicraft', 'artisan', productName],
+    instagram: {
+      caption: `✨ Handcrafted ${productName} by a master artisan!\n\nEvery piece tells a story of generations of skill and passion. Made with love in India 🇮🇳\n\nPrice: ₹${price}\n\n${hashtags.slice(0, 5).join(' ')}`,
+      hashtags: hashtags,
+    },
+    etsy: {
+      title: `Authentic ${productName} - Handmade Indian ${craftType}`,
+      description: `This stunning ${productName} is an authentic handcrafted ${craftType} made by skilled Indian artisans. Each piece is individually crafted with traditional techniques passed down through generations. The natural materials and careful attention to detail make this a unique and valuable addition to your home. Perfect as a gift or for personal collection.`,
+      tags: [craftType, 'handmade', 'Indian', 'artisan', 'authentic'],
+    },
+    amazon: {
+      title: `Handcrafted ${productName} - Authentic Indian ${craftType} (₹${price})`,
+      bulletPoints: [
+        `Authentic ${craftType} handcrafted by skilled Indian artisans`,
+        `Made with natural materials using traditional techniques`,
+        `Each piece is unique and one-of-a-kind`,
+        `Perfect for home décor, gift-giving, or personal collection`,
+        `Supports traditional craft and fair trade practices`,
+      ],
+      description: `This beautiful ${productName} is a testament to the rich heritage of Indian craftsmanship. Created by skilled artisans using traditional techniques, each piece is unique and tells a story of cultural authenticity. Made with high-quality natural materials, this ${craftType} combines aesthetic appeal with exceptional durability. Whether you're looking for a special gift or want to add authentic Indian artisan work to your home, this piece is a perfect choice. Supports traditional handicraft and ensures fair compensation for artisans.`,
+    },
+    flipkart: {
+      title: `${productName} - Handmade Indian ${craftType} by Master Artisans`,
+      description: `Celebrate authentic Indian craftsmanship with this handmade ${productName}. Each piece is carefully crafted by skilled artisans using traditional techniques and natural materials. This ${craftType} is not just a product but a work of art that carries the legacy of generations. Perfect for home decoration, gifting, or adding a touch of authenticity to your space.`,
+      highlights: [
+        'Handcrafted by skilled Indian artisans',
+        'Made from natural materials',
+        'Unique and one-of-a-kind piece',
+        'Traditional craftsmanship technique',
+      ],
+    },
   };
 }
 
