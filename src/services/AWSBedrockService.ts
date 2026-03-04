@@ -36,7 +36,7 @@ function cacheSet(key: string, data: any, ttlMs: number) {
 }
 
 // ── Core caller ───────────────────────────────────────────────────────────────
-async function callClaude(prompt: string, maxTokens = 1024): Promise<string> {
+export async function callClaude(prompt: string, maxTokens = 1024): Promise<string> {
   if (!isBedrockConfigured()) throw new Error('Bedrock not configured');
 
   const { BedrockRuntimeClient, InvokeModelCommand } = await import('@aws-sdk/client-bedrock-runtime');

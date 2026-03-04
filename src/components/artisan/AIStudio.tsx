@@ -2,7 +2,6 @@ import { motion } from 'motion/react';
 import { ArrowLeft, Upload, Sparkles, AlertCircle, Check, Loader, Image as ImageIcon, Download, Mic, X as XIcon, Wand2, RefreshCw } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { useFileUpload, useImageAnalysis, useDeviceCapability, useVoiceInput } from '../../hooks/useArtisanFeatures';
-import enhancedDemoImage from 'figma:asset/852ca5c1ac40dbd85cdb673b76a77225c11846b5.png';
 
 interface AIStudioProps {
   onBack: () => void;
@@ -117,12 +116,35 @@ export function AIStudio({ onBack, onSaveProduct }: AIStudioProps) {
     
     setIsEnhancing(true);
     try {
-      // Simulate enhancement delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Client-side image enhancement using canvas filters
+      // System instructions: enhance contrast, saturation, brightness, sharpness
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = previewUrl;
       
-      // Use the static enhanced demo image (bronze Nataraja)
-      setEnhancedUrl(enhancedDemoImage);
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      
+      const ctx = canvas.getContext('2d')!;
+      
+      // Apply enhancements step by step
+      ctx.filter = 'contrast(1.2) saturate(1.25) brightness(1.1) hue-rotate(0deg)';
+      ctx.drawImage(img, 0, 0);
+      
+      // Convert to enhanced image
+      const enhancedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      
+      setEnhancedUrl(enhancedDataUrl);
       setShowComparison(true);
+    } catch (error) {
+      console.error('Image enhancement error:', error);
+      alert('❌ Image enhancement failed. Please try another image.');
     } finally {
       setIsEnhancing(false);
     }
@@ -143,30 +165,82 @@ export function AIStudio({ onBack, onSaveProduct }: AIStudioProps) {
       return;
     }
 
-    // Auto-generate product name
-    if (!productName || productName.startsWith('Handcrafted')) {
-      if (analysis.objects && analysis.objects.length > 0) {
-        const topObject = analysis.objects[0].name;
-        const craftTypes = ['Traditional', 'Handcrafted', 'Artisan', 'Heritage'];
-        const randomType = craftTypes[Math.floor(Math.random() * craftTypes.length)];
-        setProductName(`${randomType} ${topObject.charAt(0).toUpperCase() + topObject.slice(1)}`);
+    setIsEnhancing(true);
+    try {
+      // Use Bedrock Claude to generate product content
+      const { generateProductDescription } = await import('../../services/AWSBedrockService');
+      
+      // Prepare analysis data for Claude
+      const detectedObjects = analysis.objects?.slice(0, 5).map((o: any) => o.name).join(', ') || 'artisan product';
+      const colors = analysis.colors?.slice(0, 3) || ['traditional', 'vibrant'];
+      const analysisDescription = analysis.description || 'handcrafted item';
+      
+      // Call Claude to generate product description based on image analysis
+      const prompt = `You are an expert Indian artisan product marketer. Based on the image analysis below, generate a compelling product description.
+
+Image Analysis:
+- Objects detected: ${detectedObjects}
+- Colors: ${colors.join(', ')}
+- Analysis: ${analysisDescription}
+
+Generate a JSON response with:
+{
+  "productName": "<creative product name based on objects>",
+  "description": "<engaging product description highlighting craftsmanship>",
+  "suggestedPrice": <number between 1500-10000 based on complexity),
+  "craftType": "<type of handicraft>"
+}
+
+Return ONLY valid JSON, no markdown.`;
+
+      // Call Claude via Bedrock
+      const { callClaude } = await import('../../services/AWSBedrockService');
+      const response = await callClaude(prompt, 600);
+      
+      // Parse the response
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const content = JSON.parse(jsonMatch[0]);
+        
+        // Update form fields with Claude-generated content
+        if (content.productName) {
+          setProductName(content.productName);
+        }
+        if (content.description) {
+          setProductDescription(content.description);
+        }
+        if (content.suggestedPrice && !productPrice) {
+          setProductPrice(content.suggestedPrice.toString());
+        }
       }
-    }
+    } catch (error) {
+      console.warn('Bedrock generation failed, using fallback logic:', error);
+      
+      // Fallback: Use local logic if Claude is unavailable
+      if (!productName || productName.startsWith('Handcrafted')) {
+        if (analysis.objects && analysis.objects.length > 0) {
+          const topObject = analysis.objects[0].name;
+          const craftTypes = ['Traditional', 'Handcrafted', 'Artisan', 'Heritage'];
+          const randomType = craftTypes[Math.floor(Math.random() * craftTypes.length)];
+          setProductName(`${randomType} ${topObject.charAt(0).toUpperCase() + topObject.slice(1)}`);
+        }
+      }
 
-    // Auto-generate enhanced description
-    if (analysis.description || analysis.objects.length > 0) {
-      const objects = analysis.objects.slice(0, 3).map((o: any) => o.name).join(', ');
-      const colors = analysis.colors || ['rich', 'vibrant'];
-      const generatedDesc = `Exquisite handcrafted piece featuring ${objects}. This authentic creation showcases ${colors[0]} tones and traditional craftsmanship. Each piece is unique and made with care by skilled artisans. ${analysis.description || 'A timeless addition to any collection.'}`;
-      setProductDescription(generatedDesc);
-    }
+      if (analysis.description || analysis.objects.length > 0) {
+        const objects = analysis.objects.slice(0, 3).map((o: any) => o.name).join(', ');
+        const colors = analysis.colors || ['rich', 'vibrant'];
+        const generatedDesc = `Exquisite handcrafted piece featuring ${objects}. This authentic creation showcases ${colors[0]} tones and traditional craftsmanship. Each piece is unique and made with care by skilled artisans. ${analysis.description || 'A timeless addition to any collection.'}`;
+        setProductDescription(generatedDesc);
+      }
 
-    // Suggest price based on complexity
-    if (!productPrice && analysis.objects.length > 0) {
-      const basePrice = 1500;
-      const complexityMultiplier = Math.min(analysis.objects.length * 500, 3000);
-      const suggestedPrice = basePrice + complexityMultiplier;
-      setProductPrice(suggestedPrice.toString());
+      if (!productPrice && analysis.objects.length > 0) {
+        const basePrice = 1500;
+        const complexityMultiplier = Math.min(analysis.objects.length * 500, 3000);
+        const suggestedPrice = basePrice + complexityMultiplier;
+        setProductPrice(suggestedPrice.toString());
+      }
+    } finally {
+      setIsEnhancing(false);
     }
   };
 
@@ -300,16 +374,16 @@ export function AIStudio({ onBack, onSaveProduct }: AIStudioProps) {
               <div className="flex-1">
                 <p className="mb-2 font-medium">AI Analysis Complete:</p>
                 <ul className="space-y-1 text-sm text-white/90">
-                  {analysis.tradeSecrets.length > 0 && (
+                  {analysis && analysis.tradeSecrets && analysis.tradeSecrets.length > 0 && (
                     <li>🔒 {analysis.tradeSecrets.length} trade secret(s) detected and protected</li>
                   )}
-                  {analysis.objects.length > 0 && (
+                  {analysis && analysis.objects && analysis.objects.length > 0 && (
                     <li>✓ Identified: {analysis.objects.slice(0, 3).map((o: any) => o.name).join(', ')}</li>
                   )}
-                  {analysis.enhancementSuggestions.map((suggestion: string, idx: number) => (
+                  {analysis && analysis.enhancementSuggestions && analysis.enhancementSuggestions.map((suggestion: string, idx: number) => (
                     <li key={idx}>{suggestion}</li>
                   ))}
-                  {analysis.enhancementSuggestions.length === 0 && (
+                  {analysis && analysis.enhancementSuggestions && analysis.enhancementSuggestions.length === 0 && (
                     <li>✓ Photo quality is excellent!</li>
                   )}
                 </ul>
