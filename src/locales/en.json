@@ -1,0 +1,109 @@
+{
+  "app": {
+    "name": "Kalaikatha",
+    "tagline": "Stories of Indian Craftsmanship"
+  },
+  "welcome": {
+    "title": "Welcome",
+    "artisan": "Artisan",
+    "artisanDesc": "Manage your craft",
+    "buyer": "Buyer",
+    "buyerDesc": "Discover unique crafts",
+    "browse": "Browse",
+    "browseDesc": "Explore without login"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "camera": "Photo",
+    "orders": "Orders",
+    "pricing": "Pricing",
+    "vault": "Vault",
+    "market": "Market",
+    "help": "Help"
+  },
+  "help": {
+    "title": "Help",
+    "helpMode": "Help mode is ON",
+    "helpModeOff": "Help mode is OFF",
+    "longPress": "Long-press any button to hear what it does",
+    "tutorial": "Tutorial",
+    "helpModeActive": "Tap any button to learn what it does (action will not execute)",
+    "cameraHelp": "This is the camera button. Tap to take photos of your products",
+    "ordersHelp": "This is the orders button. Tap to view your new orders",
+    "pricingHelp": "This is the pricing button. Tap to set prices for your products"
+  },
+  "legal": {
+    "title": "Legal Help",
+    "disclaimer": "We are NOT lawyers. We only connect you to government help and free legal services.",
+    "patents": "Patents & Intellectual Property",
+    "schemes": "Government Schemes & Aid",
+    "legalAid": "Free Legal Aid",
+    "training": "Training & Awareness",
+    "call": "Call",
+    "website": "Website",
+    "back": "Back"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "email": "Email",
+    "phone": "Phone Number",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginAsArtisan": "Login as Artisan",
+    "loginAsBuyer": "Login as Buyer"
+  },
+  "camera": {
+    "title": "Take Photo",
+    "takePhoto": "Take Photo",
+    "retake": "Retake",
+    "upload": "Upload",
+    "processing": "Processing..."
+  },
+  "vault": {
+    "title": "Protected Vault",
+    "description": "Your trade secrets are safe",
+    "culturalDocs": "Cultural Documentation (Optional)",
+    "culturalDocsDesc": "Create a private guide of your traditional techniques for future generations",
+    "private": "Private - Only you can see",
+    "storageUsed": "Storage used"
+  },
+  "orders": {
+    "title": "Orders",
+    "new": "New",
+    "pending": "Pending",
+    "completed": "Completed",
+    "viewDetails": "View Details"
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "search": "Search"
+  },
+  "languages": {
+    "hindi": "हिन्दी",
+    "english": "English",
+    "tamil": "தமிழ்",
+    "telugu": "తెలుగు",
+    "kannada": "ಕನ್ನಡ",
+    "malayalam": "മലയാളം",
+    "bengali": "বাংলা",
+    "marathi": "मराठी",
+    "selectLanguage": "Select Language"
+  }
+}
