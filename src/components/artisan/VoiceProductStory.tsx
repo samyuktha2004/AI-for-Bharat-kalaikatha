@@ -12,7 +12,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useRef, useEffect } from 'react';
 import { X, Mic, StopCircle, Save, Sparkles, Lock, Play, Pause, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { transcribeAudioFile } from '../../services/AWSTranscribeService';
 // Uses AWS Transcribe for professional speech-to-text
 

@@ -1,6 +1,6 @@
 import { Mic, Upload, Image, Video, TrendingUp, Eye, ShoppingBag, Settings, Camera, MessageSquare, Lock, Store, Globe, Award, MessageCircle, IndianRupee, Sparkles } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { SettingsModal } from './SettingsModal';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAuth } from '../../contexts/AuthContext';

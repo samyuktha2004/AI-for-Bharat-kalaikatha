@@ -4,7 +4,7 @@ import { useArtisanFlow } from '../hooks/useArtisanFlow';
 import { LoadingState } from './LoadingState';
 import { ProductStory } from './artisan/VoiceProductStory';
 import { ConnectionStatus } from './ConnectionStatus';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 // Lazy load artisan components
 const ArtisanDashboard = lazy(() => import('./artisan/ArtisanDashboard').then(m => ({ default: m.ArtisanDashboard })));

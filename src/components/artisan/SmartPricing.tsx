@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { useSmartPricing } from '../../hooks/useArtisanFeatures';
 import { useTextToSpeech } from '../../hooks/useArtisanFeatures';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface SmartPricingProps {
   onBack: () => void;

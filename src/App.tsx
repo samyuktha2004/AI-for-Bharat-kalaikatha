@@ -6,7 +6,7 @@ import { useAuthModal } from './hooks/useAuthModal';
 import { LoadingState } from './components/LoadingState';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { autoCleanStorage } from './utils/performance';
-import { Toaster } from 'sonner@2.0.3';
+import { Toaster } from 'sonner';
 
 // Lazy load heavy components
 const AuthScreen = lazy(() => import('./components/AuthScreen').then(m => ({ default: m.AuthScreen })));
