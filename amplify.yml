@@ -1,15 +1,14 @@
 version: 1
-appRoot: AI-for-Bharat-kalaikatha
 frontend:
   phases:
     preBuild:
       commands:
-        - npm install
+        - cd AI-for-Bharat-kalaikatha && npm install
     build:
       commands:
-        - npm run build
+        - cd AI-for-Bharat-kalaikatha && npm run build
   artifacts:
-    baseDirectory: build
+    baseDirectory: AI-for-Bharat-kalaikatha/build
     files:
       - '**/*'
   cache:
