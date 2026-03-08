@@ -17,3 +17,9 @@ frontend:
   postBuild:
     commands:
       - echo "Build complete"
+redirects:
+  - source: '</^[^.]+$|\.(?!html?$)([^.]+$)/>'
+    target: '/index.html'
+    status: '200'
+    queryParameters: {}
+headers: []
