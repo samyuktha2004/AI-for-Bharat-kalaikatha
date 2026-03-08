@@ -3,12 +3,12 @@ frontend:
   phases:
     preBuild:
       commands:
-        - cd AI-for-Bharat-kalaikatha && npm install
+        - npm install
     build:
       commands:
-        - cd AI-for-Bharat-kalaikatha && npm run build
+        - npm run build
   artifacts:
-    baseDirectory: AI-for-Bharat-kalaikatha/build
+    baseDirectory: build
     files:
       - '**/*'
   cache:
