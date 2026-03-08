@@ -1,5 +1,5 @@
 version: 1
-appRoot: .
+appRoot: AI-for-Bharat-kalaikatha
 frontend:
   phases:
     preBuild:
